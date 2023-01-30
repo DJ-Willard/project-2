@@ -2,12 +2,12 @@
 Daniel Willard's Flask API.
 """
 
-from flask import Flask
+from flask import Flask, send_file
 import os
 
-app = Flask(__name__)
+app = Flask(name)
 
-def file_check(file_path):
+def check_file(file_path):
     if '..' in file_path or '~' in file_path:
         return 403
     try:
@@ -16,8 +16,8 @@ def file_check(file_path):
     except FileNotFoundError:
         return 404
 
-@app.route("/<file>")
-def serve_file():
+@app.route("/path:file")
+def serve_file(file):
     file_path = 'web/pages/' +file
     result = check_file(file_path)
     if result == 404:
