@@ -5,7 +5,7 @@ Daniel Willard's Flask API.
 from flask import Flask, send_file
 import os
 
-app = Flask(name)
+app = Flask(__name__)
 
 def check_file(file_path):
     if '..' in file_path or '~' in file_path:
@@ -31,9 +31,9 @@ if __name__ == "__main__":
     config = configparser.ConfigParser()
     file_names = ['credentials.ini', 'default.ini']
     for file_name in file_names:
-        if os.path.exists(file_names):
+        if os.path.exists(file_name):
             config.read(file_name)
             break
-    port = config.getting('DEFAULT', 'port', fallback=5000)
+    port = config.getint('DEFAULT', 'port', fallback=5000)
     debug = config.getboolean('DEFAULT', 'debug', fallback=False)
     app.run(debug=debug, host='0.0.0.0', port=port)
