@@ -16,14 +16,14 @@ def check_file(file_path):
     except FileNotFoundError:
         return 404
 
-@app.route("/path:file")
+@app.route("/<path:file>")
 def serve_file(file):
-    file_path = 'web/pages/' +file
+    file_path = 'web/pages/' + file
     result = check_file(file_path)
     if result == 404:
-        return send_file('web/pages/404.html'), 404
+        return send_file(os.path.join('web', 'pages', '404.html'), 404)
     if result == 403:
-        return send_file('web/pages/403.html'), 403
+        return send_file('web/pages/403.html'), 403 
     return send_file(file_path)
 
 if __name__ == "__main__":
