@@ -2,38 +2,36 @@
 Daniel Willard's Flask API.
 """
 
-from flask import Flask, send_file
 import os
+import configparser
+from flask import Flask, send_from_directory
 
 app = Flask(__name__)
 
-def check_file(file_path):
-    if '..' in file_path or '~' in file_path:
-        return 403
-    try:
-        with open(file_path, 'rb') as f:
-            return f.read()
-    except FileNotFoundError:
-        return 404
+@app.route("/")
+def index():
+    return "UOCIS docker demo!"
 
-@app.route("/<path:file>")
-def serve_file(file):
-    file_path = 'web/pages/' + file
-    result = check_file(file_path)
-    if result == 404:
-        return send_file(os.path.join('web', 'pages', '404.html'), 404)
-    if result == 403:
-        return send_file('web/pages/403.html'), 403 
-    return send_file(file_path)
+@app.route("/<path:filename>")
+def show_file(filename):
+    if '..' in filename or '~' in filename:
+        return send_from_directory('pages', '403.html'), 403
+    file_path = os.path.join('pages', filename)
+    if os.path.isfile(file_path):
+        return send_from_directory('pages', filename), 200
+    return send_from_directory('pages', '404.html'), 404
 
 if __name__ == "__main__":
-    import configparser
     config = configparser.ConfigParser()
-    file_names = ['credentials.ini', 'default.ini']
-    for file_name in file_names:
-        if os.path.exists(file_name):
-            config.read(file_name)
-            break
-    port = config.getint('DEFAULT', 'port', fallback=5000)
-    debug = config.getboolean('DEFAULT', 'debug', fallback=False)
-    app.run(debug=debug, host='0.0.0.0', port=port)
+    if os.path.exists('credentials.ini'):
+        config.read('credentials.ini')
+        PORT = int(config['SERVER']['PORT'])
+        DEBUG = config['SERVER'].getboolean('DEBUG')
+    elif os.path.exists('default.ini'):
+        config.read('default.ini')
+        PORT = int(config['SERVER']['PORT'])
+        DEBUG = config['SERVER'].getboolean('DEBUG')
+    else:
+        PORT = 5000
+        DEBUG = True
+    app.run(port=PORT, debug=DEBUG)
