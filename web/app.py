@@ -4,7 +4,7 @@ Daniel Willard's Flask API.
 
 import os
 import configparser
-from flask import Flask, send_from_directory
+from flask import *
 
 app = Flask(__name__)
 
@@ -15,11 +15,13 @@ def index():
 @app.route("/<path:filename>")
 def show_file(filename):
     if '..' in filename or '~' in filename:
-        return send_from_directory('pages', '403.html'), 403
+        respose = make_response(render_template('403.html'), 403)
+        return respose
     file_path = os.path.join('pages', filename)
     if os.path.isfile(file_path):
         return send_from_directory('pages', filename), 200
-    return send_from_directory('pages', '404.html'), 404
+    respose = make_response(render_template('404.html'), 404)
+    return respose
 
 if __name__ == "__main__":
     config = configparser.ConfigParser()
